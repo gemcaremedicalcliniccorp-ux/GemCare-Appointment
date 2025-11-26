@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GemCare Medical Clinic – Online Booking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      background: #e0f2f1;   /* light teal */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px 14px;
+      color: #111827;
+    }
+
+    /* PHONE FRAME */
+    .phone-shell {
+      width: 100%;
+      max-width: 420px;
+      border-radius: 42px;
+      padding: 10px;
+      background: #000;
+      box-shadow:
+        0 24px 60px rgba(0,0,0,0.4),
+        0 0 0 3px #0f172a10;
+      position: relative;
+    }
+
+    .phone-notch {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40%;
+      height: 16px;
+      border-radius: 999px;
+      background: #020617;
+    }
+
+    .screen {
+      background: linear-gradient(to bottom, #063542, #031922);
+      border-radius: 32px;
+      padding: 10px 8px 2px;
+      overflow-y: auto;
+      max-height: calc(100vh - 60px);
+    }
+
+    .frame {
+      background: linear-gradient(135deg, #0ea5e9, #22c55e);
+      padding: 2px;
+      border-radius: 24px;
+    }
+
+    .card {
+      background: #f9fafb;
+      border-radius: 22px;
+      padding: 18px 16px 18px;
+    }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .logo-box {
+      width: 100%;
+      max-width: 280px;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .logo-box img {
+      width: 100%;
+      display: block;
+    }
+
+    .header-text {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .tagline {
+      font-size: 0.7rem;
+      font-style: italic;
+      color: #6b7280;
+    }
+
+    .form-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #0f172a;
+    }
+
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #9ca3af;
+      margin-top: 12px;
+      margin-bottom: 6px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      margin-top: 9px;
+      margin-bottom: 3px;
+      color: #374151;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 11px 12px;
+      font-size: 0.9rem;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      background: #f9fafb;
+      color: #111827;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #9ca3af;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #0ea5e9;
+      box-shadow: 0 0 0 1px #bae6fd;
+      background: #ffffff;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .row-3 {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr 0.9fr;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 15px;
+      gap: 8px;
+      font-size: 0.7rem;
+      color: #6b7280;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 9px 16px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      background: linear-gradient(to right, #0ea5e9, #22c55e);
+      color: #ecfeff;
+      box-shadow: 0 10px 20px rgba(8,47,73,0.55);
+    }
+
+    /* Simple popup */
+    #popup {
+      position: fixed;
+      inset: 0;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      background: rgba(15,23,42,0.75);
+      z-index: 50;
+    }
+
+    #popup-content {
+      background: #f9fafb;
+      padding: 18px 20px;
+      border-radius: 18px;
+      text-align: center;
+      max-width: 280px;
+      box-shadow: 0 20px 40px rgba(15,23,42,0.5);
+      font-size: 0.9rem;
+    }
+
+    #popup-content h2 {
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+      color: #16a34a;
+    }
+
+    #popup-content button {
+      margin-top: 10px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: 1px solid #0ea5e9;
+      background: #0ea5e9;
+      color: #ecfeff;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 480px) {
+      .row-3,
+      .row-2 {
+        grid-template-columns: 1fr;
+      }
+      .screen {
+        max-height: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-shell">
+    <div class="phone-notch"></div>
+    <div class="screen">
+      <div class="frame">
+        <div class="card">
+
+          <!-- FORM START -->
+          <form id="bookingForm">
+            <header class="header">
+              <div class="logo-box">
+                <!-- Make sure gemcare-logo.png is in the same folder as this HTML file -->
+                <img src="gemcare-logo.png" alt="GemCare Medical Clinic Logo">
+              </div>
+              <div class="header-text">
+                <span class="tagline">Because Every Life is a Gem Worth Caring For</span>
+                <span class="form-title">Online Booking Application Form</span>
+              </div>
+            </header>
+
+            <!-- PATIENT DETAILS -->
+            <div class="section-label">Patient Details</div>
+
+            <label>FULLNAME *</label>
+            <input type="text" name="fullname" placeholder="Surname, First Name, Middle Name" required>
+
+            <label>ADDRESS *</label>
+            <input type="text" name="address" placeholder="House No. / Street / Barangay / City / Province" required>
+
+            <div class="row-3">
+              <div>
+                <label>BIRTHDATE *</label>
+                <input type="date" name="birthdate" required>
+              </div>
+              <div>
+                <label>AGE</label>
+                <input type="number" name="age" min="0" placeholder="Years">
+              </div>
+              <div>
+                <label>SEX</label>
+                <select name="sex">
+                  <option value="">Select</option>
+                  <option>Female</option>
+                  <option>Male</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row-2">
+              <div>
+                <label>NATIONALITY</label>
+                <input type="text" name="nationality" placeholder="e.g. Filipino">
+              </div>
+              <div>
+                <label>EMAIL</label>
+                <input type="email" name="email" placeholder="you@example.com">
+              </div>
+            </div>
+
+            <label>PURPOSE *</label>
+            <input type="text" name="purpose" required>
+
+            <label>CATEGORY *</label>
+            <select name="category" required>
+              <option value="">Select</option>
+              <option>Online Consultation</option>
+              <option>Clinic Appointment</option>
+            </select>
+
+            <!-- SCHEDULE -->
+            <div class="section-label">Preferred Schedule</div>
+
+            <div class="row-2">
+              <div>
+                <label>PREFERRED DATE *</label>
+                <input type="date" name="preferred_date" required>
+              </div>
+              <div>
+                <label>PREFERRED TIME *</label>
+                <input type="time" name="preferred_time" required>
+              </div>
+            </div>
+
+            <label>Payment Method *</label>
+            <select name="paymentMethod" required>
+              <option value="">Select</option>
+              <option>GCash</option>
+              <option>PayMaya</option>
+            </select>
+
+            <div class="actions">
+              <button type="submit" class="btn">Submit Appointment</button>
+            </div>
+          </form>
+          <!-- FORM END -->
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP -->
+  <div id="popup">
+    <div id="popup-content">
+      <h2>✔ SUCCESS</h2>
+      <p>Booking received, we will contact you shortly.</p>
+      <button type="button" onclick="closePopup()">OK</button>
+    </div>
+  </div>
+
+  <script>
+    function closePopup() {
+      document.getElementById("popup").style.display = "none";
+    }
+
+    const form = document.getElementById("bookingForm");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      fetch("https://script.google.com/macros/s/AKfycbwLtyZpKWa85uDf4ldDbNDDrZp3rEqarCc5XxBOxj421fnO4YiwF2DTAPiN6OpkX5yY/exec", {
+  method: "POST",
+  body: JSON.stringify(data)
+})
+.then(() => {
+  document.getElementById("popup").style.display = "flex"; // Ipakita ang success popup
+  form.reset(); // I-reset ang form
+})
+.catch(err => {
+  alert("May nangyaring error. Subukan ulit.");
+  console.error(err);
+});
+      });
+    });
+  </script>
+</body>
+</html>
