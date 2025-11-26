@@ -310,7 +310,12 @@
     </div>
   </div>
 
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
   <script>
+    (function() {
+      emailjs.init("your_emailjs_user_id"); // Replace with your User ID from EmailJS
+    })();
+
     function closePopup() {
       document.getElementById("popup").style.display = "none";
     }
@@ -322,18 +327,15 @@
 
       const formData = new FormData(form);
 
-      fetch("https://script.google.com/macros/s/AKfycbyH5Qzhtu6EVxiXmGuZ6k6e3-SvshUKV6KiG9ufJR_Cs80Rz5_Y5NrE2R2vOEXZKPDE/exec", {
-        method: "POST",
-        body: formData,
-      })
-      .then(() => {
-        document.getElementById("popup").style.display = "flex";
-        form.reset();
-      })
-      .catch(err => {
-        alert("May error. Pakisubukang muli.");
-        console.error(err);
-      });
+      emailjs.sendForm("service_5f5osr9", "template_7pv4c1s", formData)
+        .then(() => {
+          document.getElementById("popup").style.display = "flex";
+          form.reset();
+        })
+        .catch(err => {
+          alert("May error. Pakisubukang muli.");
+          console.error(err);
+        });
     });
   </script>
 
