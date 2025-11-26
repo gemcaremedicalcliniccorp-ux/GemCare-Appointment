@@ -310,33 +310,41 @@
     </div>
   </div>
 
-  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
-  <script>
-    (function() {
-      emailjs.init("your_emailjs_user_id"); // Replace with your User ID from EmailJS
-    })();
+  <<script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+</script>
+<script type="text/javascript">
+   (function(){
+      emailjs.init({
+        publicKey: "IbE5Bgc0GQeKbx1JG",
+      });
+   })();
+</script>
 
-    function closePopup() {
-      document.getElementById("popup").style.display = "none";
-    }
+<div id="popup" style="display: none;">
+    <p>Thank you for your appointment!</p>
+</div>
 
-    const form = document.getElementById("bookingForm");
 
-    form.addEventListener("submit", function(e) {
-      e.preventDefault();
+<script>
+<script>
+   document.getElementById('appointment-form').addEventListener('submit', function(event) {
+      event.preventDefault();
 
-      const formData = new FormData(form);
+      var form = event.target;
 
-      emailjs.sendForm("service_5f5osr9", "template_7pv4c1s", formData)
-        .then(() => {
-          document.getElementById("popup").style.display = "flex";
-          form.reset();
-        })
-        .catch(err => {
-          alert("May error. Pakisubukang muli.");
-          console.error(err);
-        });
-    });
+      emailjs.sendForm('service_5f5osr9', 'template_7pv4c1s', form)
+          .then(() => {
+              document.getElementById("popup").style.display = "flex";
+              form.reset();
+          })
+          .catch(err => {
+              alert("May error. Pakisubukang muli.");
+              console.error(err);
+          });
+  });
+</script>
+    
   </script>
 
 </body>
