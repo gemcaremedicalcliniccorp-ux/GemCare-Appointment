@@ -29,7 +29,6 @@
         0 0 0 3px #0f172a10;
       position: relative;
 
-      /* 🔥 FIX 1: MAKE FULL HEIGHT SO HINDI CROPPED */
       height: calc(100vh - 40px);
       display: flex;
       flex-direction: column;
@@ -51,8 +50,6 @@
       background: linear-gradient(to bottom, #063542, #031922);
       border-radius: 32px;
       padding: 10px 8px 2px;
-
-      /* 🔥 FIX 2: ALLOW SCROLLING INSIDE */
       overflow-y: auto;
       flex: 1;
     }
@@ -200,7 +197,6 @@
     }
 
     @media (max-width: 480px) {
-      /* 🔥 FIX 3: Don't break layout on small screens */
       .row-3,
       .row-2 {
         grid-template-columns: 1fr;
@@ -217,10 +213,7 @@
     <div class="screen">
       <div class="frame">
         <div class="card">
-          
-          <!-- YOUR ORIGINAL FORM — UNTOUCHED -->
           <form id="bookingForm">
-
             <header class="header">
               <div class="logo-box">
                 <img src="gemcare-logo.png" alt="GemCare Medical Clinic Logo">
@@ -303,9 +296,7 @@
             <div class="actions">
               <button type="submit" class="btn">Submit Appointment</button>
             </div>
-
           </form>
-
         </div>
       </div>
     </div>
@@ -330,18 +321,17 @@
       e.preventDefault();
 
       const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
 
-      fetch("https://script.google.com/macros/s/AKfycbwLtyZpKWa85uDf4ldDbNDDrZp3rEqarCc5XxBOxj421fnO4YiwF2DTAPiN6OpkX5yY/exec", {
+      fetch("https://script.google.com/macros/s/AKfycbyH5Qzhtu6EVxiXmGuZ6k6e3-SvshUKV6KiG9ufJR_Cs80Rz5_Y5NrE2R2vOEXZKPDE/exec", {
         method: "POST",
-        body: JSON.stringify(data)
+        body: formData,
       })
       .then(() => {
         document.getElementById("popup").style.display = "flex";
         form.reset();
       })
       .catch(err => {
-        alert("May nangyaring error. Subukan ulit.");
+        alert("May error. Pakisubukang muli.");
         console.error(err);
       });
     });
