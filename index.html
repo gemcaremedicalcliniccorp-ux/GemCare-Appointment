@@ -291,18 +291,19 @@
               <option value="">Select</option>
               <option>GCash</option>
               <option>PayMaya</option>
-            </select>
+                         </select>
 
+            <div class="actions">
             <div class="actions">
               <button type="submit" class="btn">Submit Appointment</button>
             </div>
-          </form>
+          </form> 
+          </div> 
         </div>
-      </div>
     </div>
-  </div>
+    </div> 
 
-  <div id="popup">
+  <div id="popup" style="display: none;">
     <div id="popup-content">
       <h2>✔ SUCCESS</h2>
       <p>Booking received, we will contact you shortly.</p>
@@ -310,41 +311,35 @@
     </div>
   </div>
 
-  <<script type="text/javascript"
-        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
-</script>
-<script type="text/javascript">
-   (function(){
-      emailjs.init({
-        publicKey: "IbE5Bgc0GQeKbx1JG",
-      });
-   })();
-</script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  
+  <script>
+    (function(){
+       emailjs.init({
+         publicKey: "IbE5Bgc0GQeKbx1JG",
+       });
+    })();
 
-<div id="popup" style="display: none;">
-    <p>Thank you for your appointment!</p>
-</div>
+    function closePopup() {
+      document.getElementById("popup").style.display = "none";
+    }
 
+    // TAMA na ang ID dito!
+    document.getElementById('bookingForm').addEventListener('submit', function(event) {
+       event.preventDefault(); // SUPER IMPORTANT: Ito ang pumipigil sa page refresh
 
-<script>
-<script>
-   document.getElementById('appointment-form').addEventListener('submit', function(event) {
-      event.preventDefault();
+       var form = event.target;
 
-      var form = event.target;
-
-      emailjs.sendForm('service_5f5osr9', 'template_7pv4c1s', form)
-          .then(() => {
-              document.getElementById("popup").style.display = "flex";
-              form.reset();
-          })
-          .catch(err => {
-              alert("May error. Pakisubukang muli.");
-              console.error(err);
-          });
-  });
-</script>
-    
+       emailjs.sendForm('service_5f5osr9', 'template_7pv4c1s', form)
+           .then(() => {
+               document.getElementById("popup").style.display = "flex"; // Ipakita ang popup
+               form.reset(); // I-reset ang form fields
+           })
+           .catch(err => {
+               alert("May error. Pakisubukang muli. Tingnan ang console para sa detalye.");
+               console.error(err);
+           });
+    });
   </script>
 
 </body>
