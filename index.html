@@ -264,7 +264,7 @@
             </div>
 
             <label>CHIEF COMPLAINT *</label>
-            <input type="text" name="chief complaint" placeholder="ex.Fever, Cold, Cough, Body Pain etc." required>
+            <input type="text" name="chief_complaint" placeholder="ex.Fever, Cold, Cough, Body Pain etc." required>
 
             <label>CATEGORY *</label>
             <select name="category" required>
@@ -292,8 +292,7 @@
               <option>GCash</option>
               <option>PayMaya</option>
                          </select>
-
-            <div class="actions">
+            
             <div class="actions">
               <button type="submit" class="btn">Submit Appointment</button>
             </div>
@@ -330,15 +329,15 @@
 
        var form = event.target;
 
-       emailjs.sendForm('service_5f5osr9', 'template_7pv4c1s', form)
-           .then(() => {
-               document.getElementById("popup").style.display = "flex"; // Ipakita ang popup
-               form.reset(); // I-reset ang form fields
-           })
-           .catch(err => {
-               alert("May error. Pakisubukang muli. Tingnan ang console para sa detalye.");
-               console.error(err);
-           });
+emailjs.sendForm('service_5f5osr9', 'template_7pv4c1s', form)
+  .then(() => {
+      document.getElementById("popup").style.display = "flex";
+      form.reset();
+  })
+  .catch(err => {
+      alert("EmailJS error: " + JSON.stringify(err));
+      console.error("EmailJS error:", err);
+  });
     });
   </script>
 
