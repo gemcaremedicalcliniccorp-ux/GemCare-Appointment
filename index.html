@@ -403,8 +403,8 @@
   </div>
 </div>
 
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-  
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
 <script>
   (function(){
      emailjs.init({
@@ -416,20 +416,51 @@
     document.getElementById("popup").style.display = "none";
   }
 
-  // TAMA na ang ID dito!
+  // ✅ CHECKER: bawal mag-book nang within 1 hour from now
+  function isAtLeastOneHourFromNow(preferredDate, preferredTime) {
+    if (!preferredDate || !preferredTime) return false;
+
+    // Build full datetime string (YYYY-MM-DDTHH:MM)
+    const appointmentDateTimeString = `${preferredDate}T${preferredTime}`;
+    const appointment = new Date(appointmentDateTimeString);
+    const now = new Date();
+
+    if (isNaN(appointment.getTime())) return false;
+
+    const diffMs = appointment - now; // future - now
+    const diffHours = diffMs / (1000 * 60 * 60);
+
+    // 👉 Dito naka-set yung 1 hour rule
+    return diffHours >= 1;
+  }
+
   document.getElementById('bookingForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // SUPER IMPORTANT: Ito ang pumipigil sa page refresh
+    event.preventDefault();
 
     var form = event.target;
 
+    // 🔍 Kunin yung preferred date & time
+    const preferredDate = form.elements['preferred_date'].value;
+    const preferredTime = form.elements['preferred_time'].value;
+
+    // 🔒 Validate 1 hour rule
+    const validSchedule = isAtLeastOneHourFromNow(preferredDate, preferredTime);
+
+    if (!validSchedule) {
+      alert(
+        "Hindi puwedeng mag-book nang earlier than 1 hour from now.\n\n" +
+        "Paki-pili po ng oras na at least 1 hour mula sa oras ngayon."
+      );
+      return; // stop, walang email na masasend
+    }
+
+    // ✅ Kung pasado sa 1-hour rule, saka mag-send ng email
     emailjs
-      .sendForm('service_5f5osr9', 'template_7pv4c1s', form) // 1) email to clinic
+      .sendForm('service_5f5osr9', 'template_5f5osr9', form) // email to clinic (ayusin mo sa tamang template ID)
       .then(() => {
-        // 2) email to patient
-        return emailjs.sendForm('service_5f5osr9', 'template_y54knwg', form);
+        return emailjs.sendForm('service_5f5osr9', 'template_y54knwg', form); // email to patient
       })
       .then(() => {
-        // 3) pag ok na pareho, saka mag-popup
         document.getElementById("popup").style.display = "flex";
         form.reset();
       })
@@ -439,6 +470,3 @@
       });
   });
 </script>
-
-</body>
-</html>
