@@ -405,34 +405,40 @@
 
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   
-  <script>
-    (function(){
-       emailjs.init({
-         publicKey: "IbE5Bgc0GQeKbx1JG",
-       });
-    })();
+<script>
+  (function(){
+     emailjs.init({
+       publicKey: "IbE5Bgc0GQeKbx1JG",
+     });
+  })();
 
-    function closePopup() {
-      document.getElementById("popup").style.display = "none";
-    }
+  function closePopup() {
+    document.getElementById("popup").style.display = "none";
+  }
 
-    // TAMA na ang ID dito!
-    document.getElementById('bookingForm').addEventListener('submit', function(event) {
-       event.preventDefault(); // SUPER IMPORTANT: Ito ang pumipigil sa page refresh
+  // TAMA na ang ID dito!
+  document.getElementById('bookingForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // SUPER IMPORTANT: Ito ang pumipigil sa page refresh
 
-       var form = event.target;
+    var form = event.target;
 
-emailjs.sendForm('service_5f5osr9', 'template_7pv4c1s', form)
-  .then(() => {
-      document.getElementById("popup").style.display = "flex";
-      form.reset();
-  })
-  .catch(err => {
-      alert("EmailJS error: " + JSON.stringify(err));
-      console.error("EmailJS error:", err);
+    emailjs
+      .sendForm('service_5f5osr9', 'template_7pv4c1s', form) // 1) email to clinic
+      .then(() => {
+        // 2) email to patient
+        return emailjs.sendForm('service_5f5osr9', 'template_y54knwg', form);
+      })
+      .then(() => {
+        // 3) pag ok na pareho, saka mag-popup
+        document.getElementById("popup").style.display = "flex";
+        form.reset();
+      })
+      .catch(err => {
+        alert("EmailJS error: " + JSON.stringify(err));
+        console.error("EmailJS error:", err);
+      });
   });
-    });
-  </script>
+</script>
 
 </body>
 </html>
