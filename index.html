@@ -560,8 +560,13 @@ const { error: insertError } = await supabaseClient
   form.appendChild(hidden);
 
   // 🔥 Send Emails
+try {
   await emailjs.sendForm('service_5f5osr9','template_5f5osr9', form);
   await emailjs.sendForm('service_5f5osr9','template_y54knwg', form);
+} catch (err) {
+  console.log("EMAIL ERROR:", err);
+  alert("Email failed. Check console.");
+}
 
   // ✅ Success popup
   document.getElementById("popupMessage").innerHTML = `
