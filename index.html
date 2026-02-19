@@ -430,10 +430,12 @@
   </div>
 </div>
 
-<!-- SUPABASE FIRST -->
+<!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const supabase = window.supabase.createClient(
+const { createClient } = supabase;
+
+const supabaseClient = createClient(
   "https://okrxzmnvrsqefwwqxmfs.supabase.co",
   "sb_publishable_6qkTmj40xmgX71tCzkk8hQ_6DC9_bpF"
 );
@@ -441,15 +443,13 @@ const supabase = window.supabase.createClient(
 
 <!-- EMAILJS -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
-<!-- MAIN BOOKING SCRIPT -->
 <script>
-(function(){
-  emailjs.init({
-    publicKey: "IbE5Bgc0GQeKbx1JG",
-  });
-})();
-
+emailjs.init("IbE5Bgc0GQeKbx1JG");
+</script>
+  
+<!-- MAIN SCRIPT -->
+<script>
+  
 function closePopup() {
   document.getElementById("popup").style.display = "none";
 }
@@ -513,7 +513,7 @@ const file = fileInput.files[0];
   const fileName = `${bookingID}-${Date.now()}`;
 
   // 🔥 Upload
-  const { error: uploadError } = await supabase
+  const { error: uploadError } = await supabaseClient
     .storage
     .from("proofs")
     .upload(fileName, file);
@@ -521,7 +521,7 @@ const file = fileInput.files[0];
   if (uploadError) throw uploadError;
 
   // 🔥 Get URL
-  const { data: publicUrlData } = supabase
+  const { data: publicUrlData } = supabaseClient
     .storage
     .from("proofs")
     .getPublicUrl(fileName);
@@ -529,7 +529,7 @@ const file = fileInput.files[0];
   const proofUrl = publicUrlData.publicUrl;
 
  // 🔥 Insert to database
-const { error: insertError } = await supabase
+const { error: insertError } = await supabaseClient
   .from("booking")
   .insert([{
     fullname: form.fullname.value,
@@ -703,4 +703,3 @@ if (birthdateInput) {
   birthdateInput.addEventListener("change", computeAge);
 }
   </script>
-  
