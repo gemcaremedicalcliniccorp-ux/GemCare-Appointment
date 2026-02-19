@@ -375,8 +375,8 @@
             </div>
 
             <label>PAYMENT METHOD *</label>
-            <select name="paymentMethod" 
-              id="paymentMethod" required 
+            <select name="payment_method" 
+              id="payment_method" required 
               onchange="showPaymentDetails()">
               <option value="">Select</option>
               <option>Maribank/Seabank PH</option>
@@ -476,141 +476,115 @@ function closePopup() {
   }
 
 document.getElementById("bookingForm")
-  .addEventListener("submit", async function (e) {
+.addEventListener("submit", async function (e) {
 
-  e.preventDefault();
+e.preventDefault();
 
-  const form = this;
+const form = this;
+const submitBtn = document.getElementById("submitBtn");
 
-  // ✅ CHECK REFERENCE NUMBER
-  const refNumber = form.querySelector("input[name='reference_number']").value.trim();
-  if (!refNumber) {
-    alert("Please enter your payment reference number.");
+try {
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Processing...";
+
+  // ⛔ BLOCK IF WITHIN 1 HOUR
+  if (!isAtLeastOneHourFromNow(
+        form.preferred_date.value,
+        form.preferred_time.value
+  )) {
+    alert("Booking must be at least 1 hour from now.");
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Appointment";
     return;
   }
 
-// ✅ CHECK PROOF OF PAYMENT
-const proofUpload = document.getElementById("proofUpload").files.length;
-if (proofUpload === 0) {
-  alert("Please upload your proof of payment.");
-  return;
-}
+  const bookingID = generateBookingID();
+ const fileInput = document.getElementById("proofUpload");
 
-// ✅ HARD 1-HOUR VALIDATION
-const preferredDate = form.querySelector("input[name='preferred_date']").value;
-const preferredTime = form.querySelector("input[name='preferred_time']").value;
-
-if (!isAtLeastOneHourFromNow(preferredDate, preferredTime)) {
-  alert("Appointments must be scheduled at least 1 hour in advance.");
-  return;
-}
-
-// ✅ DISABLE BUTTON
-const submitBtn = document.getElementById("submitBtn");
-submitBtn.disabled = true;
-submitBtn.textContent = "Processing...";
-    
-    // ✅ GENERATE BOOKING ID
-const bookingID = generateBookingID();
-    
-    // 🔥 UPLOAD FILE TO SUPABASE
-const file = document.getElementById("proofUpload").files[0];
-
-const fileName = `${bookingID}-${Date.now()}`;
-
-const { data: uploadData, error: uploadError } = await supabase
-  .storage
-  .from("proofs") // ⚠️ make sure ito ang bucket name mo
-  .upload(fileName, file);
-
-    if (uploadError) {
-  alert("Upload failed: " + uploadError.message);
+if (!fileInput.files.length) {
+  alert("Please upload proof of payment.");
   submitBtn.disabled = false;
   submitBtn.textContent = "Submit Appointment";
   return;
 }
-    // 🔥 GET PUBLIC URL
-const { data: publicUrlData } = supabase
-  .storage
-  .from("proofs")
-  .getPublicUrl(fileName);
 
-const proofUrl = publicUrlData.publicUrl;
-// 🔥 SAVE BOOKING TO DATABASE
-const { data, error } = await supabase
+const file = fileInput.files[0];
+  const fileName = `${bookingID}-${Date.now()}`;
+
+  // 🔥 Upload
+  const { error: uploadError } = await supabase
+    .storage
+    .from("proofs")
+    .upload(fileName, file);
+
+  if (uploadError) throw uploadError;
+
+  // 🔥 Get URL
+  const { data: publicUrlData } = supabase
+    .storage
+    .from("proofs")
+    .getPublicUrl(fileName);
+
+  const proofUrl = publicUrlData.publicUrl;
+
+ // 🔥 Insert to database
+const { error: insertError } = await supabase
   .from("booking")
-  .insert([
-    {
-      fullname: document.querySelector("input[name='fullname']").value,
-      email: document.querySelector("input[name='email']").value,
-      preferred_date: document.querySelector("input[name='preferred_date']").value,
-      preferred_time: document.querySelector("input[name='preferred_time']").value,
-      payment_method: document.querySelector("select[name='paymentMethod']").value,
-      proof_of_payment: proofUrl,
-      status: "pending"
-    }
-  ]);
-if (error) {
-  alert("Failed to save booking: " + error.message);
+  .insert([{
+    fullname: form.fullname.value,
+    address: form.address.value,
+    birthdate: form.birthdate.value,
+    age: form.age.value,
+    sex: form.sex.value,
+    email: form.email.value,
+    nationality: form.nationality.value,
+    purpose: form.purpose.value,
+    chief_complaint: form.chief_complaint.value,
+    category: form.category.value,
+    preferred_date: form.preferred_date.value,
+    preferred_time: form.preferred_time.value,
+    payment_method: form.payment_method.value,
+    reference_number: form.reference_number.value,
+    proof_of_payment: proofUrl,
+    status: "pending"
+  }]);
+  
+  if (insertError) throw insertError;
+
+  // 🔥 Add booking ID to form
+  let hidden = document.createElement("input");
+  hidden.type = "hidden";
+  hidden.name = "booking_id";
+  hidden.value = bookingID;
+  form.appendChild(hidden);
+
+  // 🔥 Send Emails
+  await emailjs.sendForm('service_5f5osr9','template_5f5osr9', form);
+  await emailjs.sendForm('service_5f5osr9','template_y54knwg', form);
+
+  // ✅ Success popup
+  document.getElementById("popupMessage").innerHTML = `
+    Your Booking ID is <strong>${bookingID}</strong><br><br>
+    We’ve received your appointment request.
+  `;
+  document.getElementById("popup").style.display = "flex";
+
+  form.reset();
+  setMinimumTime();
+
+} catch (err) {
+  alert("Error: " + err.message);
+  console.error(err);
+} finally {
   submitBtn.disabled = false;
   submitBtn.textContent = "Submit Appointment";
-  return;
 }
 
-// ilagay sa form para masama sa email
-let hiddenBookingInput = form.querySelector("input[name='booking_id']");
-
-if (!hiddenBookingInput) {
-  hiddenBookingInput = document.createElement("input");
-  hiddenBookingInput.type = "hidden";
-  hiddenBookingInput.name = "booking_id";
-  form.appendChild(hiddenBookingInput);
-}
-
-hiddenBookingInput.value = bookingID;
-
-  // ✅ SEND EMAIL
-emailjs
-  .sendForm('service_5f5osr9', 'template_5f5osr9', form)
-  .then(() => {
-    return emailjs.sendForm('service_5f5osr9', 'template_y54knwg', form);
-  })
-  .then(() => {
-
-    document.getElementById("popupMessage").innerHTML = `
-      Your Booking ID is <strong>${bookingID}</strong><br><br>
-      We’ve received your appointment request.
-      Our team will contact you shortly to confirm your schedule.
-    `;
-
-    document.getElementById("popup").style.display = "flex";
-
-    form.reset();
-    setMinimumTime();
-    
-    form.querySelector("select[name='sex']").selectedIndex = 0;
-    form.querySelector("select[name='category']").selectedIndex = 0;
-    form.querySelector("select[name='paymentMethod']").selectedIndex = 0;
-    
-    document.getElementById("preferredTime").value = "";
-    document.getElementById("paymentDetails").style.display = "none";
-    document.getElementById("ageField").value = "";
-
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Submit Appointment";
-  })
-  .catch((err) => {
-    alert("EmailJS error: " + JSON.stringify(err));
-    console.error(err);
-
-     // ✅ IBALIK BUTTON IF MAY ERROR
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Submit Appointment";
-    });
-}); 
+});
   
   function showPaymentDetails() {
-  const method = document.getElementById("paymentMethod").value;
+  const method = document.getElementById("payment_method").value;
   const detailsBox = document.getElementById("paymentDetails");
 
   if (method === "Maribank/Seabank PH") {
