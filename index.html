@@ -476,17 +476,40 @@ function closePopup() {
   }
 
 document.getElementById("bookingForm")
-.addEventListener("submit", async function (e) {
+form.addEventListener("submit", async function(event) {
+  event.preventDefault();
 
-e.preventDefault();
+  console.log("STEP 1: Submit triggered");
 
-const form = this;
-const submitBtn = document.getElementById("submitBtn");
+  // SUPABASE INSERT
+  console.log("STEP 2: Before insert");
 
-try {
+  // insert code mo dito
 
-  submitBtn.disabled = true;
-  submitBtn.textContent = "Processing...";
+  console.log("STEP 3: After insert");
+
+  // STORAGE UPLOAD
+  console.log("STEP 4: Before upload");
+
+  // upload code mo dito
+
+  console.log("STEP 5: After upload");
+
+  // EMAILJS
+  console.log("STEP 6: Before EmailJS");
+
+  try {
+    const result = await emailjs.sendForm(
+      'service_5f5osr9',
+      'template_y54knwg',
+      form
+    );
+    console.log("STEP 7: Email sent", result);
+  } catch (error) {
+    console.log("EMAIL ERROR:", error);
+  }
+
+});
 
   // ⛔ BLOCK IF WITHIN 1 HOUR
   if (!isAtLeastOneHourFromNow(
