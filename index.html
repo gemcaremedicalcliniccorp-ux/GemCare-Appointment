@@ -444,7 +444,7 @@ const supabaseClient = createClient(
 <!-- EMAILJS -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
-emailjs.init("IbE5Bgc0GQeKbx1JG");
+emailjs.init("T78XBVmKvP8PGqxl4");
 </script>
   
 <!-- MAIN SCRIPT -->
@@ -561,7 +561,7 @@ const { error: insertError } = await supabaseClient
 
   // 🔥 Send Emails
 try {
-  await emailjs.sendForm('service_5f5osr9','template_5f5osr9', form);
+
   await emailjs.sendForm('service_5f5osr9','template_y54knwg', form);
 } catch (err) {
   console.log("EMAIL ERROR:", err);
