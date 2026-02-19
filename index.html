@@ -561,11 +561,20 @@ const { error: insertError } = await supabaseClient
 
   // 🔥 Send Emails
 try {
+  console.log("Before send");
 
-  await emailjs.sendForm('service_5f5osr9','template_y54knwg', form);
+  const result = await emailjs.sendForm(
+    'service_5f5osr9',
+    'template_y54knwg',
+    form
+  );
+
+  console.log("After send", result);
+  alert("Email sent!");
+
 } catch (error) {
-  console.log("EMAILJS ERROR:", error);
-  alert("Email failed. Check console.");
+  console.log("FULL ERROR OBJECT:", error);
+  alert("Email failed");
 }
 
   // ✅ Success popup
