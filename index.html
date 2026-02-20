@@ -444,7 +444,7 @@ const supabaseClient = createClient(
 <!-- EMAILJS -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
-emailjs.init("T78XBVmKvP8PGqxl4");
+emailjs.init("xt9VpA52f1FgWA51s");
 </script>
   
 <!-- MAIN SCRIPT -->
@@ -500,10 +500,10 @@ form.addEventListener("submit", async function(event) {
 
   try {
     const result = await emailjs.sendForm(
-      'service_5f5osr9',
-      'template_y54knwg',
-      form
-    );
+      'service_wxmrawk',
+  'template_bsoh23l',
+  form
+);
     console.log("STEP 7: Email sent", result);
   } catch (error) {
     console.log("EMAIL ERROR:", error);
@@ -587,10 +587,10 @@ try {
   console.log("Before send");
 
   const result = await emailjs.sendForm(
-    'service_5f5osr9',
-    'template_y54knwg',
-    form
-  );
+    'service_wxmrawk',
+  'template_bsoh23l',
+  form
+);
 
   console.log("After send", result);
   alert("Email sent!");
