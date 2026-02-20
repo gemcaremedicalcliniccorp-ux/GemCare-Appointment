@@ -669,23 +669,20 @@ const proofUrl = publicUrlData.publicUrl;
       }]);
 
     if (insertError) throw insertError;
-
-    // 5️⃣ Add hidden input for EmailJS
-    const hiddenInput = document.createElement("input");
-    hiddenInput.type = "hidden";
-    hiddenInput.name = "booking_id";
-    hiddenInput.value = bookingID;
-    form.appendChild(hiddenInput);
-
+    
     // 6️⃣ Send Email
-    await emailjs.sendForm(
-      "service_wxmrawk",
-      "template_bsoh23l",
-      form
-    );
-
-    form.removeChild(hiddenInput);
-
+    await emailjs.send(
+  "service_wxmrawk",
+  "template_bsoh23l",
+  {
+    booking_id: bookingID,
+    fullname: form.fullname.value,
+    email: form.email.value,
+    preferred_date: form.preferred_date.value,
+    preferred_time: form.preferred_time.value,
+    category: form.category.value
+  }
+);
     // 7️⃣ Success popup
     document.getElementById("popupMessage").innerHTML = `
       Your Booking ID is <strong>${bookingID}</strong><br><br>
