@@ -677,10 +677,20 @@ const proofUrl = publicUrlData.publicUrl;
   {
     booking_id: bookingID,
     fullname: form.fullname.value,
-    email: form.email.value,
+    address: form.address.value,
+    birthdate: form.birthdate.value,
+    age: form.age.value,
+    sex: form.sex.value,
+    nationality: form.nationality.value,
+    purpose: form.purpose.value,
+    chief_complaint: form.chief_complaint.value,
+    category: form.category.value,
     preferred_date: form.preferred_date.value,
     preferred_time: form.preferred_time.value,
-    category: form.category.value
+    payment_method: form.payment_method.value,
+    reference_number: form.reference_number.value,
+    proof_of_payment: proofURL,
+    status: "Pending"
   }
 );
     // 7️⃣ Success popup
