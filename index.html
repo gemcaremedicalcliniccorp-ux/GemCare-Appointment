@@ -450,211 +450,58 @@ emailjs.init("xt9VpA52f1FgWA51s");
 <!-- MAIN SCRIPT -->
 <script>
   
+// ================================
+// INITIAL SETUP
+// ================================
+
+const form = document.getElementById("bookingForm");
+const submitBtn = document.getElementById("submitBtn");
+
+// ================================
+// UTIL FUNCTIONS
+// ================================
+
+// Close popup
 function closePopup() {
   document.getElementById("popup").style.display = "none";
 }
 
-/* DITO MO ILAGAY BUONG BOOKING JS MO
-   (yung addEventListener, upload, insert, etc)
-*/
-
-  // ✅ CHECKER: bawal mag-book nang within 1 hour from now
-  function isAtLeastOneHourFromNow(preferredDate, preferredTime) {
-    if (!preferredDate || !preferredTime) return false;
-
-    // Build full datetime string (YYYY-MM-DDTHH:MM)
-    const appointmentDateTimeString = `${preferredDate}T${preferredTime}`;
-    const appointment = new Date(appointmentDateTimeString);
-    const now = new Date();
-
-    if (isNaN(appointment.getTime())) return false;
-
-    const diffMs = appointment - now; // future - now
-
-    // 👉 Dito naka-set yung 1 hour rule
-    return diffMs >= 60 * 60 * 1000;
-  }
-
-document.getElementById("bookingForm")
-form.addEventListener("submit", async function(event) {
-  event.preventDefault();
-
-  console.log("STEP 1: Submit triggered");
-
-  // SUPABASE INSERT
-  console.log("STEP 2: Before insert");
-
-  // insert code mo dito
-
-  console.log("STEP 3: After insert");
-
-  // STORAGE UPLOAD
-  console.log("STEP 4: Before upload");
-
-  // upload code mo dito
-
-  console.log("STEP 5: After upload");
-
-  // EMAILJS
-  console.log("STEP 6: Before EmailJS");
-
-  try {
-    const result = await emailjs.sendForm(
-      'service_wxmrawk',
-  'template_bsoh23l',
-  form
-);
-    console.log("STEP 7: Email sent", result);
-  } catch (error) {
-    console.log("EMAIL ERROR:", error);
-  }
-
-});
-
-  // ⛔ BLOCK IF WITHIN 1 HOUR
-  if (!isAtLeastOneHourFromNow(
-        form.preferred_date.value,
-        form.preferred_time.value
-  )) {
-    alert("Booking must be at least 1 hour from now.");
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Submit Appointment";
-    return;
-  }
-
-  const bookingID = generateBookingID();
- const fileInput = document.getElementById("proofUpload");
-
-if (!fileInput.files.length) {
-  alert("Please upload proof of payment.");
-  submitBtn.disabled = false;
-  submitBtn.textContent = "Submit Appointment";
-  return;
+// Generate Booking ID
+function generateBookingID() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const random = Math.floor(1000 + Math.random() * 9000);
+  return `GEM-${year}-${random}`;
 }
 
-const file = fileInput.files[0];
-  const fileName = `${bookingID}-${Date.now()}`;
+// 1-hour validation
+function isAtLeastOneHourFromNow(preferredDate, preferredTime) {
+  if (!preferredDate || !preferredTime) return false;
 
-  // 🔥 Upload
-  const { error: uploadError } = await supabaseClient
-    .storage
-    .from("proofs")
-    .upload(fileName, file);
+  const appointment = new Date(`${preferredDate}T${preferredTime}`);
+  const now = new Date();
 
-  if (uploadError) throw uploadError;
+  if (isNaN(appointment.getTime())) return false;
 
-  // 🔥 Get URL
-  const { data: publicUrlData } = supabaseClient
-    .storage
-    .from("proofs")
-    .getPublicUrl(fileName);
-
-  const proofUrl = publicUrlData.publicUrl;
-
- // 🔥 Insert to database
-const { error: insertError } = await supabaseClient
-  .from("booking")
-  .insert([{
-    fullname: form.fullname.value,
-    address: form.address.value,
-    birthdate: form.birthdate.value,
-    age: form.age.value,
-    sex: form.sex.value,
-    email: form.email.value,
-    nationality: form.nationality.value,
-    purpose: form.purpose.value,
-    chief_complaint: form.chief_complaint.value,
-    category: form.category.value,
-    preferred_date: form.preferred_date.value,
-    preferred_time: form.preferred_time.value,
-    payment_method: form.payment_method.value,
-    reference_number: form.reference_number.value,
-    proof_of_payment: proofUrl,
-    status: "pending"
-  }]);
-  
-  if (insertError) throw insertError;
-
-  // 🔥 Add booking ID to form
-  let hidden = document.createElement("input");
-  hidden.type = "hidden";
-  hidden.name = "booking_id";
-  hidden.value = bookingID;
-  form.appendChild(hidden);
-
-  // 🔥 Send Emails
-try {
-  console.log("Before send");
-
-  const result = await emailjs.sendForm(
-    'service_wxmrawk',
-  'template_bsoh23l',
-  form
-);
-
-  console.log("After send", result);
-  alert("Email sent!");
-
-} catch (error) {
-  console.log("FULL ERROR OBJECT:", error);
-  alert("Email failed");
+  return (appointment - now) >= 60 * 60 * 1000;
 }
 
-  // ✅ Success popup
-  document.getElementById("popupMessage").innerHTML = `
-    Your Booking ID is <strong>${bookingID}</strong><br><br>
-    We’ve received your appointment request.
-  `;
-  document.getElementById("popup").style.display = "flex";
+// Disable past dates
+function disablePastDates() {
+  const dateInput = document.querySelector("input[name='preferred_date']");
+  if (!dateInput) return;
 
-  form.reset();
-  setMinimumTime();
-
-} catch (err) {
-  alert("Error: " + err.message);
-  console.error(err);
-} finally {
-  submitBtn.disabled = false;
-  submitBtn.textContent = "Submit Appointment";
+  const today = new Date().toISOString().split("T")[0];
+  dateInput.min = today;
 }
 
-});
-  
-  function showPaymentDetails() {
-  const method = document.getElementById("payment_method").value;
-  const detailsBox = document.getElementById("paymentDetails");
-
-  if (method === "Maribank/Seabank PH") {
-    detailsBox.style.display = "block";
-    detailsBox.innerHTML = `
-      <strong>Maribank / Seabank PH Details:</strong><br><br>
-      Account Name: GemCare Medical Clinic/Mardy P.<br>
-      Account Number: 1018 8612 326<br>
-      Please send your proof of payment after transfer.
-    `;
-  } 
-  else if (method === "PayMaya Wallet PH") {
-    detailsBox.style.display = "block";
-    detailsBox.innerHTML = `
-      <strong>PayMaya Wallet PH Details:</strong><br><br>
-      Account Name: GemCare Medical Clinic/Mardy P.<br>
-      Mobile Number: 0938 550 1147<br>
-      Kindly screenshot your payment confirmation.
-    `;
-  } 
-  else {
-    detailsBox.style.display = "none";
-    detailsBox.innerHTML = "";
-  }
-}
+// Set minimum time if today selected
 function setMinimumTime() {
   const timeInput = document.getElementById("preferredTime");
   const dateInput = document.querySelector("input[name='preferred_date']");
-  
-  if (!dateInput || !timeInput) return;
+  if (!timeInput || !dateInput) return;
 
   const selectedDate = dateInput.value;
-
   if (!selectedDate) {
     timeInput.min = "00:00";
     return;
@@ -663,7 +510,6 @@ function setMinimumTime() {
   const now = new Date();
   const selected = new Date(selectedDate + "T00:00:00");
 
-  // Reset first
   timeInput.min = "00:00";
 
   if (selected.toDateString() === now.toDateString()) {
@@ -676,67 +522,182 @@ function setMinimumTime() {
   }
 }
 
-window.addEventListener("load", function () {
-  setMinimumTime();
-  disablePastDates();
-
-  // ✅ block future birthdates
-  const birthdateInput = document.querySelector("input[name='birthdate']");
-  const today = new Date().toISOString().split("T")[0];
-  birthdateInput.max = today;
-});
-
-// Run when date changes (safe version)
-const dateInput = document.querySelector("input[name='preferred_date']");
-if (dateInput) {
-  dateInput.addEventListener("change", setMinimumTime);
-}
-  
-function disablePastDates() {
-  const dateInput = document.querySelector("input[name='preferred_date']");
-  if (!dateInput) return;
-
-  const today = new Date().toISOString().split("T")[0];
-  dateInput.min = today;
-}
-
+// Compute age
 function computeAge() {
   const birthdateInput = document.querySelector("input[name='birthdate']");
   const ageField = document.getElementById("ageField");
 
-  const birthdateValue = birthdateInput.value;
-  if (!birthdateValue) {
+  if (!birthdateInput.value) {
     ageField.value = "";
     return;
   }
 
   const today = new Date();
-  const birthDate = new Date(birthdateValue);
+  const birthDate = new Date(birthdateInput.value);
 
   let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDifference = today.getMonth() - birthDate.getMonth();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
 
   if (
-    monthDifference < 0 ||
-    (monthDifference === 0 && today.getDate() < birthDate.getDate())
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < birthDate.getDate())
   ) {
     age--;
   }
 
   ageField.value = age;
 }
-  
-  function generateBookingID() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const random = Math.floor(1000 + Math.random() * 9000);
-  return `GEM-${year}-${random}`;
-}
-const birthdateInput = document.querySelector("input[name='birthdate']");
-if (birthdateInput) {
-  const today = new Date().toISOString().split("T")[0];
-  birthdateInput.max = today;
 
-  birthdateInput.addEventListener("change", computeAge);
+// Payment details display
+function showPaymentDetails() {
+  const method = document.getElementById("payment_method").value;
+  const detailsBox = document.getElementById("paymentDetails");
+
+  if (method === "Maribank/Seabank PH") {
+    detailsBox.style.display = "block";
+    detailsBox.innerHTML = `
+      <strong>Maribank / Seabank PH Details:</strong><br><br>
+      Account Name: GemCare Medical Clinic/Mardy P.<br>
+      Account Number: 1018 8612 326<br>
+      Please send your proof of payment after transfer.
+    `;
+  } else if (method === "PayMaya Wallet PH") {
+    detailsBox.style.display = "block";
+    detailsBox.innerHTML = `
+      <strong>PayMaya Wallet PH Details:</strong><br><br>
+      Account Name: GemCare Medical Clinic/Mardy P.<br>
+      Mobile Number: 0938 550 1147<br>
+      Kindly screenshot your payment confirmation.
+    `;
+  } else {
+    detailsBox.style.display = "none";
+    detailsBox.innerHTML = "";
+  }
 }
-  </script>
+
+// ================================
+// PAGE LOAD SETUP
+// ================================
+
+window.addEventListener("load", function () {
+  disablePastDates();
+  setMinimumTime();
+
+  const birthdateInput = document.querySelector("input[name='birthdate']");
+  const today = new Date().toISOString().split("T")[0];
+
+  birthdateInput.max = today;
+  birthdateInput.addEventListener("change", computeAge);
+
+  const dateInput = document.querySelector("input[name='preferred_date']");
+  dateInput.addEventListener("change", setMinimumTime);
+});
+
+// ================================
+// MAIN SUBMIT HANDLER
+// ================================
+
+form.addEventListener("submit", async function (event) {
+  event.preventDefault();
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Processing...";
+
+  try {
+
+    // 1️⃣ 1-hour validation
+    if (!isAtLeastOneHourFromNow(
+      form.preferred_date.value,
+      form.preferred_time.value
+    )) {
+      alert("Booking must be at least 1 hour from now.");
+      return;
+    }
+
+    const bookingID = generateBookingID();
+
+    // 2️⃣ File validation
+    const fileInput = document.getElementById("proofUpload");
+    if (!fileInput.files.length) {
+      alert("Please upload proof of payment.");
+      return;
+    }
+
+    const file = fileInput.files[0];
+    const fileName = `${bookingID}-${Date.now()}`;
+
+    // 3️⃣ Upload to Supabase Storage
+    const { error: uploadError } = await supabaseClient
+      .storage
+      .from("proofs")
+      .upload(fileName, file, { upsert: false });
+
+    if (uploadError) throw uploadError;
+
+    const { data: publicUrlData } = supabaseClient
+      .storage
+      .from("proofs")
+      .getPublicUrl(fileName);
+
+    const proofUrl = publicUrlData.publicUrl;
+
+    // 4️⃣ Insert to Database
+    const { error: insertError } = await supabaseClient
+      .from("booking")
+      .insert([{
+        booking_id: bookingID,
+        fullname: form.fullname.value,
+        address: form.address.value,
+        birthdate: form.birthdate.value,
+        age: form.age.value,
+        sex: form.sex.value,
+        email: form.email.value,
+        nationality: form.nationality.value,
+        purpose: form.purpose.value,
+        chief_complaint: form.chief_complaint.value,
+        category: form.category.value,
+        preferred_date: form.preferred_date.value,
+        preferred_time: form.preferred_time.value,
+        payment_method: form.payment_method.value,
+        reference_number: form.reference_number.value,
+        proof_of_payment: proofUrl,
+        status: "pending"
+      }]);
+
+    if (insertError) throw insertError;
+
+    // 5️⃣ Add hidden input for EmailJS
+    const hiddenInput = document.createElement("input");
+    hiddenInput.type = "hidden";
+    hiddenInput.name = "booking_id";
+    hiddenInput.value = bookingID;
+    form.appendChild(hiddenInput);
+
+    // 6️⃣ Send Email
+    await emailjs.sendForm(
+      "service_wxmrawk",
+      "template_bsoh23l",
+      form
+    );
+
+    form.removeChild(hiddenInput);
+
+    // 7️⃣ Success popup
+    document.getElementById("popupMessage").innerHTML = `
+      Your Booking ID is <strong>${bookingID}</strong><br><br>
+      We’ve received your appointment request.
+    `;
+    document.getElementById("popup").style.display = "flex";
+
+    form.reset();
+
+  } catch (err) {
+    alert("Error: " + err.message);
+    console.error(err);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Appointment";
+  }
+});
+
+</script>
