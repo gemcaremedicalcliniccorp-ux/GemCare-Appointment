@@ -627,20 +627,24 @@ form.addEventListener("submit", async function (event) {
     const fileName = `${bookingID}-${Date.now()}`;
 
     // 3️⃣ Upload to Supabase Storage
-    const { error: uploadError } = await supabaseClient
-      .storage
-      .from("proofs")
-      .upload(fileName, file, { upsert: false });
+const { error: uploadError } = await supabaseClient
+  .storage
+  .from("proofs")
+  .upload(fileName, file, { upsert: false });
 
-    if (uploadError) throw uploadError;
+if (uploadError) throw uploadError;
 
-    const { data: publicUrlData } = supabaseClient
-      .storage
-      .from("proofs")
-      .getPublicUrl(fileName);
+// Get public URL
+const { data: publicUrlData } = supabaseClient
+  .storage
+  .from("proofs")
+  .getPublicUrl(fileName);
 
-    const proofUrl = publicUrlData.publicUrl;
+if (!publicUrlData?.publicUrl) {
+  throw new Error("Failed to generate public URL.");
+}
 
+const proofUrl = publicUrlData.publicUrl;
     // 4️⃣ Insert to Database
     const { error: insertError } = await supabaseClient
       .from("booking")
@@ -692,12 +696,11 @@ form.addEventListener("submit", async function (event) {
     form.reset();
 
   } catch (err) {
-    alert("Error: " + err.message);
-    console.error(err);
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = "Submit Appointment";
-  }
-});
-
+  console.error("FULL ERROR:", err);
+  alert("Error: " + (err?.message || JSON.stringify(err)));
+} finally {
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Submit Appointment";
+}
+});  // ← IMPORTANT: closes addEventListener
 </script>
