@@ -644,7 +644,8 @@ if (!publicUrlData?.publicUrl) {
   throw new Error("Failed to generate public URL.");
 }
 
-const proofUrl = publicUrlData.publicUrl;
+const proofURL = publicUrlData.publicUrl;
+    console.log("PROOF URL:", proofURL);
     // 4️⃣ Insert to Database
     const { error: insertError } = await supabaseClient
       .from("booking")
@@ -664,7 +665,7 @@ const proofUrl = publicUrlData.publicUrl;
         preferred_time: form.preferred_time.value,
         payment_method: form.payment_method.value,
         reference_number: form.reference_number.value,
-        proof_of_payment: proofUrl,
+        proof_of_payment: proofURL,
         status: "pending"
       }]);
 
@@ -689,7 +690,7 @@ const proofUrl = publicUrlData.publicUrl;
     preferred_time: form.preferred_time.value,
     payment_method: form.payment_method.value,
     reference_number: form.reference_number.value,
-    proof_of_payment: proofUrL,
+    proof_of_payment: proofURL,
     status: "Pending"
   }
 );
