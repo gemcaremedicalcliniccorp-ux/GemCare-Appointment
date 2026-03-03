@@ -715,7 +715,7 @@ form.addEventListener("submit", async function (event) {
     // 3️⃣ Upload to Supabase Storage
 const { error: uploadError } = await supabaseClient
   .storage
-  .from("proofs")
+  .from("PROOFS")
   .upload(fileName, file, { upsert: false });
 
 if (uploadError) throw uploadError;
@@ -723,7 +723,7 @@ if (uploadError) throw uploadError;
 // Get public URL
 const { data: publicUrlData } = supabaseClient
   .storage
-  .from("proofs")
+  .from("PROOFS")
   .getPublicUrl(fileName);
 
 if (!publicUrlData?.publicUrl) {
